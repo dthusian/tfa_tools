@@ -1,23 +1,27 @@
 package dev.wateralt.mc.tfa_tools;
 
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ToolManip {
   static final String MODULES_KEY = "tfa_tools.modules";
+  static final String MODULE_EFFECT_KEY = "tfa_tools.effect";
   static final String FILLED_BOXES = "▁▂▃▅▆▇";
   
   static final int NETHERITE_TOOL_SLOTS = 8;
@@ -67,6 +71,10 @@ public class ToolManip {
       item.addEnchantment(TfaTools.dynamicRegistries.getEntryOrThrow(Enchantments.UNBREAKING), 3);
       item.addEnchantment(TfaTools.dynamicRegistries.getEntryOrThrow(Enchantments.MENDING), 1);
       item.set(DataComponentTypes.REPAIR_COST, 999);
+      item.set(DataComponentTypes.LORE, new LoreComponent(getLore(item)));
+      TreeSet<ComponentType<?>> set = new TreeSet<>((a, b) -> 0);
+      set.add(DataComponentTypes.ENCHANTMENTS);
+      item.set(DataComponentTypes.TOOLTIP_DISPLAY, new TooltipDisplayComponent(false, set));
     }
     return ret.get();
   }
@@ -94,17 +102,22 @@ public class ToolManip {
           }
         });
       }));
+      updateLore(item);
     }
     return ret.get();
   }
   
-  public ArrayList<ItemStack> clearModules(ItemStack item) {
-    int[] modules = getModules(item);
+  public static void clearModules(ItemStack item) {
     if(isModularized(item)) {
       item.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbt -> nbt.apply(v -> {
         v.putIntArray(MODULES_KEY, new int[numSlots(item)]);
       }));
+      updateLore(item);
     }
+  }
+  
+  public static ArrayList<ItemStack> getModuleItems(ItemStack item) {
+    int[] modules = getModules(item);
     ArrayList<ItemStack> items = new ArrayList<>();
     Arrays.stream(modules).forEach(v -> {
       if(v != 0) {
@@ -120,6 +133,10 @@ public class ToolManip {
 
   public static int getModuleStrength(int module) {
     return module & 0xffff;
+  }
+  
+  public static int moduleFromRawParts(int moduleId, int strength) {
+    return (moduleId << 16) | (strength & 0xffff);
   }
 
   public static int getLegalModuleStrength(int module) {
@@ -171,7 +188,7 @@ public class ToolManip {
     int[] moduleEffects = getModuleEffects(modules, true, caps);
     
     ArrayList<Text> texts = new ArrayList<>();
-    MutableText slots = Text.empty();
+    MutableText slots = Text.empty().styled(v -> v.withItalic(false));
     int populated = 0;
     for(int i = 0; i < modules.length; i++) {
       ModuleTypes.ModuleType typ = getModuleType(modules[i]);
@@ -180,7 +197,7 @@ public class ToolManip {
       } else {
         populated++;
         int strength = getLegalModuleStrength(modules[i]);
-        int boxIdx = Math.clamp(strength - typ.levelMin(), 0, 5);
+        int boxIdx = typ.binary() ? 5 : Math.clamp(strength - typ.levelMin(), 0, 5);
         slots.append(Text.literal(FILLED_BOXES.substring(boxIdx, boxIdx + 1)).formatted(typ.fmt()));
       }
     }
@@ -190,18 +207,39 @@ public class ToolManip {
     for(int i = 0; i < moduleEffects.length; i++) {
       ModuleTypes.ModuleType typ = ModuleTypes.MODULE_TYPES.get(i);
       if(typ == null) continue;
+      if(moduleEffects[i] == 0) continue;
       String capText = caps[typ.capId()] == 0 ? "(cap)" : "";
+      String text;
       if(typ.binary()) {
-        texts.add(Text.literal(typ.name()).formatted(typ.fmt()));
+        text = typ.name();
       } else {
-        texts.add(Text.literal(String.format("%d.%d %s %s", moduleEffects[i] / 10, moduleEffects[i] % 10, typ.name(), capText)).formatted(typ.fmt()));
+        text = String.format("%d.%d %s %s", moduleEffects[i] / 10, moduleEffects[i] % 10, typ.name(), capText);
       }
+      texts.add(Text.literal(text).styled(v -> v.withItalic(false)).formatted(typ.fmt()));
     }
     
     return texts;
   }
   
+  public static void updateLore(ItemStack item) {
+    item.set(DataComponentTypes.LORE, new LoreComponent(getLore(item)));
+  }
+  
   public static ItemStack createModuleItem(int module) {
-    return new ItemStack(Items.CLOCK, 1);
+    ItemStack stack = new ItemStack(Items.CLOCK, 1);
+    stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of("minecraft", "item/amethyst_shard"));
+    stack.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+    NbtCompound nbt = new NbtCompound();
+    nbt.putInt(MODULE_EFFECT_KEY, module);
+    stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+    return stack;
+  }
+  
+  public static int getModuleFromItem(ItemStack moduleItem) {
+    AtomicInteger ret = new AtomicInteger(0);
+    moduleItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbt -> nbt.apply(v -> {
+      ret.set(v.getInt(MODULE_EFFECT_KEY, 0));
+    }));
+    return ret.get();
   }
 }

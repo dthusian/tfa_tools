@@ -18,7 +18,7 @@ public class ModuleTypes {
   public static final int MAX_ID = 3;
   
   public static final ModuleType EFFICIENCY = new ModuleType(1, "Efficiency", 10, 15, NO_CAP, TOOLS, Formatting.GREEN);
-  public static final ModuleType SILK_TOUCH = new ModuleType(2, "Silk Touch", 1, 1, NO_CAP, TOOLS, Formatting.YELLOW);
+  public static final ModuleType SILK_TOUCH = new ModuleType(2, "Silk Touch", 10, 10, NO_CAP, TOOLS, Formatting.YELLOW);
   public static final ModuleType FORTUNE = new ModuleType(3, "Fortune", 10, 15, 1, TOOLS, Formatting.AQUA);
 
   public static final List<Integer> CAPS = List.of(
