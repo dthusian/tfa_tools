@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "tfa_tools",
+  "version": "${version}",
+
+  "name": "tfa_tools",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "All-Rights-Reserved",
+  "icon": "assets/tfa_tools/icon.png",
+
+  "environment": "server",
+  "entrypoints": {
+    "fabric-datagen": [],
+    "main": ["dev.wateralt.mc.tfa_tools.TfaTools"]
+  },
+
+  "mixins": [
+    "tfa_tools.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}"
+  }
+}

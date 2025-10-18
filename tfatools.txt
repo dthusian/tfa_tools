@@ -1,0 +1,64 @@
+rfc: modular tools, electric glue
+
+concept
+- can modularize a tool/sword/armor, which replaces enchantments with modules which can be inserted or removed from tools easily
+- modularized tools automatically have mending unbreaking 3 which is offset by the cost of modularizing (unspecified right now)
+- tools have maximum module slots depending on material, 1 module takes up 1 slot
+- modules are found in chest loot with a random strength from 1.0 to 1.5, certain structures are biased towards certain module types (e.g. mineshaft has more efficiency  modules)
+- 1.0 = 1 level of an enchantment
+- binary modules are either on/off, no strength associated with it
+
+data
+- tool slots
+  - netherite: 6
+  - diamond: 7
+  - gold: 9
+  - iron: 6
+  - copper: 3
+- sword slots: todo
+- armor slots:
+  - netherite: 3
+  - diamond: 4
+  - gold: 5
+  - iron: 4
+  - copper: 2
+
+tool enchants
+- fortune: includes both fortune and looting, cap = 3
+- efficiency: no cap
+- silk touch: binary. costs 2 slots, cap = 1 (functional)
+- durability: binary. decreases chance for durability to be used by 5% additive. combined with the free unbr3 (75% chance not to be used) 5 durability = unbreakable tool
+- sharpness: cap = 5 (shared with sharp/smite/bane)
+- smite: cap = 5 (shared with sharp/smite/bane)
+- bane of arthropods: cap = 5 (shared with sharp/smite/bane)
+- flintslate: always 1.0 strength. reworked fire aspect, turns sword damage type to fire. adds +1 to shared sharp/smite/bane cap
+- knockback: cap = 2
+
+armor enchants
+- blade prot, blunt prot, fire prot, blast prot, proj prot, magic prot: 2 epf/lv
+- featherfall: 3 epf/lv
+- aqua affinity: binary. head: aqua affinity and resp 3, boots: depth strider 3
+- soul speed: binary.
+- swift sneak: binary.
+- frost walker: binary.
+- 18 epf cap per prot
+
+balancing justification 
+- netherite/diamond tool slots were balanced around making them a bit more powerful than a maxed enchant pick
+- in order to give weaker materials situational use, they have been given unique abilities
+  - gold: significantly more slots
+  - copper: enchantment caps do not apply
+  - iron: +0.3 to module strength (limit 1.5 per module)
+- the most powerful interactions possible with this
+  - unbreakable efficiency 6 gold tool
+  - fortune/looting 4.5 copper tool
+  - 5 slots + 2 piece copper armor on a certain prot = immunity to that damage class
+- efficiency >5 does not matter that much unless it allows instant mining, since without instamine you are limited to 1 block / 4gt and max efficiency netherite is close to that for most materials
+
+unsolved mysteries
+- sword slot counts?
+- slot usage for qol armor enchants?
+  - protection uses the epf 18 cap
+  - due to small number of slots, would be bad if using these enchants took away slots for prot
+- thorns?
+  - likely will never see use due to taking up protection slots (make separate slots?)
