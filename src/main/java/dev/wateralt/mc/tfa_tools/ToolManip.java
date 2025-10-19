@@ -105,6 +105,7 @@ public class ToolManip {
         });
       }));
       updateLore(item);
+      ModuleEffects.updateModuleEffects(item);
     }
     return ret.get();
   }
@@ -115,6 +116,7 @@ public class ToolManip {
         v.putIntArray(MODULES_KEY, new int[numSlots(item)]);
       }));
       updateLore(item);
+      ModuleEffects.updateModuleEffects(item);
     }
   }
   
@@ -166,7 +168,7 @@ public class ToolManip {
   public static int[] getModuleEffects(int[] modules, boolean[] gotCapped, boolean capped) {
     int[] total = new int[ModuleTypes.NUM_TYPES];
     int[] sharedCaps = ModuleTypes.CAPS.stream().mapToInt(i->i).toArray();
-    int[] selfCaps = IntStreams.rangeClosed(ModuleTypes.NUM_TYPES).map(v -> ModuleTypes.MODULE_TYPES[v].cap()).toArray();
+    int[] selfCaps = IntStreams.range(ModuleTypes.NUM_TYPES).map(v -> ModuleTypes.MODULE_TYPES[v].cap()).toArray();
     addModuleEffects(total, modules, sharedCaps, selfCaps, capped);
     for(int i = 0; i < ModuleTypes.NUM_TYPES; i++) {
       gotCapped[i] = selfCaps[i] == 0 || sharedCaps[ModuleTypes.MODULE_TYPES[i].capId()] == 0;
@@ -245,6 +247,7 @@ public class ToolManip {
     NbtCompound nbt = new NbtCompound();
     nbt.putInt(MODULE_EFFECT_KEY, moduleFromRawParts(typ.id(), strength));
     stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+    stack.set(DataComponentTypes.ITEM_NAME, Text.literal("Enchanted Shard").formatted(Formatting.LIGHT_PURPLE));
     stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(
       Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
         .styled(v -> v.withItalic(false))

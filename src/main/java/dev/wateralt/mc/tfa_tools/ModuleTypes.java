@@ -35,7 +35,6 @@ public class ModuleTypes {
   public static final int NO_CAP = 0;
   public static final int TOOLS = 1;
   public static final int ARMOR = 2;
-  public static final int NUM_TYPES = 10;
   
   public static final ModuleType EFFICIENCY =
     ModuleType.defaults(0, "Efficiency", Formatting.GREEN, TOOLS)
@@ -53,24 +52,50 @@ public class ModuleTypes {
     ModuleType.defaults(4, "Sharpness", Formatting.RED, TOOLS)
       .withSharedCap(1)
       .withLevelRange(10, 15);
-  public static final ModuleType BANE_OF_ARTHROPODS =
-    ModuleType.defaults(5, "Bane of Arthropods", Formatting.BLUE, TOOLS)
-      .withSharedCap(1)
-      .withLevelRange(10, 15);
-  public static final ModuleType SMITE =
-    ModuleType.defaults(6, "Smite", Formatting.LIGHT_PURPLE, TOOLS)
-      .withSharedCap(1)
-      .withLevelRange(10, 15);
   public static final ModuleType FLINTSLATE =
-    ModuleType.defaults(7, "Flintslate", Formatting.GOLD, TOOLS)
+    ModuleType.defaults(5, "Flintslate", Formatting.GOLD, TOOLS)
       .withSharedCap(1);
   public static final ModuleType KNOCKBACK =
-    ModuleType.defaults(8, "Knockback", Formatting.GOLD, TOOLS)
+    ModuleType.defaults(6, "Knockback", Formatting.GOLD, TOOLS)
       .withSelfCap(20)
       .withLevelRange(10, 15);
   
   public static final ModuleType BLUNT_PROT =
-    ModuleType.defaults(9, "Blunt Protection", Formatting.DARK_RED, ARMOR);
+    ModuleType.defaults(7, "Blunt Protection", Formatting.DARK_RED, ARMOR)
+      .withSelfCap(90)
+      .withLevelRange(10, 15);
+  public static final ModuleType BLADE_PROT =
+    ModuleType.defaults(8, "Blade Protection", Formatting.RED, ARMOR)
+      .withSelfCap(90)
+      .withLevelRange(10, 15);
+  public static final ModuleType FIRE_PROT =
+    ModuleType.defaults(9, "Fire Protection", Formatting.GOLD, ARMOR)
+      .withSelfCap(90)
+      .withLevelRange(10, 15);
+  public static final ModuleType BLAST_PROT =
+    ModuleType.defaults(10, "Blast Protection", Formatting.YELLOW, ARMOR)
+      .withSelfCap(90)
+      .withLevelRange(10, 15);
+  public static final ModuleType PROJ_PROT =
+    ModuleType.defaults(11, "Projectile Protection", Formatting.WHITE, ARMOR)
+      .withSelfCap(90)
+      .withLevelRange(10, 15);
+  public static final ModuleType MAGIC_PROT =
+    ModuleType.defaults(12, "Magic Protection", Formatting.LIGHT_PURPLE, ARMOR)
+      .withSelfCap(90)
+      .withLevelRange(10, 15);
+  public static final ModuleType FEATHER_FALLING =
+    ModuleType.defaults(13, "Feather Falling", Formatting.GREEN, ARMOR)
+      .withSelfCap(60)
+      .withLevelRange(10, 15);
+  public static final ModuleType AQUA_AFFINITY =
+    ModuleType.defaults(14, "Aqua Affinity", Formatting.BLUE, ARMOR);
+  public static final ModuleType SOUL_SPEED =
+    ModuleType.defaults(15, "Soul Speed", Formatting.DARK_PURPLE, ARMOR);
+  public static final ModuleType SWIFT_SNEAK =
+    ModuleType.defaults(16, "Swift Sneak", Formatting.DARK_BLUE, ARMOR);
+  public static final ModuleType FROST_WALKER =
+    ModuleType.defaults(17, "Frost Walker", Formatting.AQUA, ARMOR);
 
   public static final List<Integer> CAPS = List.of(
     Integer.MAX_VALUE, // No cap
@@ -83,12 +108,21 @@ public class ModuleTypes {
     FORTUNE,
     DURABILITY,
     SHARPNESS,
-    BANE_OF_ARTHROPODS,
-    SMITE,
     FLINTSLATE,
     KNOCKBACK,
-    BLUNT_PROT
+    BLUNT_PROT,
+    BLADE_PROT,
+    FIRE_PROT,
+    BLAST_PROT,
+    PROJ_PROT,
+    MAGIC_PROT,
+    FEATHER_FALLING,
+    AQUA_AFFINITY,
+    SOUL_SPEED,
+    SWIFT_SNEAK,
+    FROST_WALKER
   };
+  public static final int NUM_TYPES = MODULE_TYPES.length;
   static {
     for(int i = 0; i < MODULE_TYPES.length; i++) {
       if(MODULE_TYPES[i].id != i) throw new AssertionError();

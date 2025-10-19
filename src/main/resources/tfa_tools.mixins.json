@@ -4,13 +4,15 @@
   "package": "dev.wateralt.mc.tfa_tools.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "AnvilScreenHandlerMixin",
     "CommandManagerMixin",
-    "ForgingScreenHandlerAccessor",
-    "GrindstoneScreenHandlerAnonymousMixin",
-    "GrindstoneScreenHandlerMixin",
     "LootableInventoryMixin",
-    "MinecraftServerMixin"
+    "MinecraftServerMixin",
+    "effect.EnchantmentHelperMixin",
+    "effect.ItemMixin",
+    "gui.AnvilScreenHandlerMixin",
+    "gui.ForgingScreenHandlerAccessor",
+    "gui.GrindstoneScreenHandlerAnonymousMixin",
+    "gui.GrindstoneScreenHandlerMixin"
   ],
   "client": [
   ],

@@ -1,4 +1,4 @@
-package dev.wateralt.mc.tfa_tools.mixin;
+package dev.wateralt.mc.tfa_tools.mixin.gui;
 
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;

@@ -1,4 +1,4 @@
-package dev.wateralt.mc.tfa_tools.mixin;
+package dev.wateralt.mc.tfa_tools.mixin.gui;
 
 import dev.wateralt.mc.tfa_tools.ToolManip;
 import net.minecraft.item.ItemStack;
@@ -23,17 +23,18 @@ public class AnvilScreenHandlerMixin {
     ItemStack input1 = thatAccess.getInput().getStack(0);
     ItemStack input2 = thatAccess.getInput().getStack(1);
     
-    if(ToolManip.isModularized(input1)) {
+    if(ToolManip.isModularized(input1) && !input2.isEmpty()) {
       ci.cancel();
-      levelCost.set(0); // adding modules is always free
       int module = ToolManip.getModuleFromItem(input2);
       if(module != 0) {
         ItemStack output = input1.copy();
         boolean success = ToolManip.addModule(output, module);
         if(!success) {
           thatAccess.getOutput().setStack(0, ItemStack.EMPTY);
+          levelCost.set(0);
         } else {
           thatAccess.getOutput().setStack(0, output);
+          levelCost.set(1);
         }
       }
     } else if(ToolManip.canBeModularized(input1) && input2.isOf(Items.ECHO_SHARD)) {

@@ -28,10 +28,8 @@ tool enchants
 - efficiency: no cap
 - silk touch: binary. costs 2 slots
 - durability: binary. decreases chance for durability to be used by 5% additive. combined with the free unbr3 (75% chance not to be used) 5 durability = unbreakable tool
-- sharpness: cap = 5 (shared with sharp/smite/bane)
-- smite: cap = 5 (shared with sharp/smite/bane)
-- bane of arthropods: cap = 5 (shared with sharp/smite/bane)
-- flintslate: binary. reworked fire aspect, turns sword damage type to fire. adds +1 to shared sharp/smite/bane cap
+- sharpness: cap = 5
+- flintslate: binary. reworked fire aspect, turns sword damage type to fire. adds +1 to sharp cap
 - knockback: cap = 2
 
 armor enchants
@@ -62,3 +60,10 @@ unsolved mysteries
   - due to small number of slots, would be bad if using these enchants took away slots for prot
 - thorns?
   - likely will never see use due to taking up protection slots (make separate slots?)
+  
+todo
+- implement multi slot usage
+- implement uncapped
+- implement armor modules
+- implement module effects
+- fix bug: uses up all shards in the stack

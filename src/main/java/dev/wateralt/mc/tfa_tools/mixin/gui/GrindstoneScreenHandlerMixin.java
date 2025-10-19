@@ -1,4 +1,4 @@
-package dev.wateralt.mc.tfa_tools.mixin;
+package dev.wateralt.mc.tfa_tools.mixin.gui;
 
 import dev.wateralt.mc.tfa_tools.ToolManip;
 import net.minecraft.item.ItemStack;
