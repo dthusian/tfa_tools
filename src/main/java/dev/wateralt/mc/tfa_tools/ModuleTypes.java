@@ -29,7 +29,7 @@ public class ModuleTypes {
     }
     
     boolean binary() {
-      return levelMax == levelMin && levelMin == 1;
+      return levelMax == levelMin && levelMin == 10;
     }
   }
   public static final int NO_CAP = 0;
@@ -56,7 +56,7 @@ public class ModuleTypes {
     ModuleType.defaults(5, "Flintslate", Formatting.GOLD, TOOLS)
       .withSharedCap(1);
   public static final ModuleType KNOCKBACK =
-    ModuleType.defaults(6, "Knockback", Formatting.GOLD, TOOLS)
+    ModuleType.defaults(6, "Knockback", Formatting.LIGHT_PURPLE, TOOLS)
       .withSelfCap(20)
       .withLevelRange(10, 15);
   

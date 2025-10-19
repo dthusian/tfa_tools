@@ -28,12 +28,15 @@ public class ToolManip {
   
   static final int NETHERITE_TOOL_SLOTS = 8;
   static final int DIAMOND_TOOL_SLOTS = 7;
+  static final int COPPER_TOOL_SLOTS = 3;
 
   static final int DIAMOND_ARMOR_SLOTS = 4;
   static final int NETHERITE_ARMOR_SLOTS = 4;
+  static final int COPPER_ARMOR_SLOTS = 3;
 
-  static final int DIAMOND_SWORD_SLOTS = 1; // todo
-  static final int NETHERITE_SWORD_SLOTS = 1; // todo
+  static final int DIAMOND_SWORD_SLOTS = 8; // todo
+  static final int NETHERITE_SWORD_SLOTS = 7; // todo
+  static final int COPPER_SWORD_SLOTS = 4; // todo
   static final HashMap<Item, Integer> SLOTS = new HashMap<>();
   static {
     SLOTS.put(Items.DIAMOND_AXE, DIAMOND_TOOL_SLOTS);
@@ -51,6 +54,14 @@ public class ToolManip {
     SLOTS.put(Items.NETHERITE_CHESTPLATE, NETHERITE_ARMOR_SLOTS);
     SLOTS.put(Items.NETHERITE_LEGGINGS, NETHERITE_ARMOR_SLOTS);
     SLOTS.put(Items.NETHERITE_BOOTS, NETHERITE_ARMOR_SLOTS);
+    
+    SLOTS.put(Items.COPPER_AXE, COPPER_TOOL_SLOTS);
+    SLOTS.put(Items.COPPER_PICKAXE, COPPER_TOOL_SLOTS);
+    SLOTS.put(Items.COPPER_SWORD, COPPER_SWORD_SLOTS);
+    SLOTS.put(Items.COPPER_HELMET, COPPER_ARMOR_SLOTS);
+    SLOTS.put(Items.COPPER_CHESTPLATE, COPPER_ARMOR_SLOTS);
+    SLOTS.put(Items.COPPER_LEGGINGS, COPPER_ARMOR_SLOTS);
+    SLOTS.put(Items.COPPER_BOOTS, COPPER_ARMOR_SLOTS);
   }
   
   public static int numSlots(Item item) {
@@ -72,7 +83,6 @@ public class ToolManip {
       }));
       item.addEnchantment(TfaTools.dynamicRegistries.getEntryOrThrow(Enchantments.UNBREAKING), 3);
       item.addEnchantment(TfaTools.dynamicRegistries.getEntryOrThrow(Enchantments.MENDING), 1);
-      item.set(DataComponentTypes.REPAIR_COST, 999);
       item.set(DataComponentTypes.LORE, new LoreComponent(getLore(item)));
       TreeSet<ComponentType<?>> set = new TreeSet<>((a, b) -> 0);
       set.add(DataComponentTypes.ENCHANTMENTS);
@@ -196,7 +206,7 @@ public class ToolManip {
   public static ArrayList<Text> getLore(ItemStack item) {
     int[] modules = getModules(item);
     boolean[] gotCapped = new boolean[ModuleTypes.NUM_TYPES];
-    int[] moduleEffects = getModuleEffects(modules, gotCapped, true);
+    int[] moduleEffects = getModuleEffects(modules, gotCapped, !ModuleEffects.UNCAPPED.contains(item.getItem()));
     
     ArrayList<Text> texts = new ArrayList<>();
     MutableText slots = Text.empty().styled(v -> v.withItalic(false));
@@ -249,9 +259,11 @@ public class ToolManip {
     stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
     stack.set(DataComponentTypes.ITEM_NAME, Text.literal("Enchanted Shard").formatted(Formatting.LIGHT_PURPLE));
     stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(
-      Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
-        .styled(v -> v.withItalic(false))
-        .formatted(typ.fmt())
+      typ.binary()
+       ? Text.literal(typ.name()).styled(v -> v.withItalic(false)).formatted() 
+       : Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
+          .styled(v -> v.withItalic(false))
+          .formatted(typ.fmt())
     )));
     return stack;
   }

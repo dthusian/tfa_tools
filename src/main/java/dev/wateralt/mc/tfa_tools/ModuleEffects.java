@@ -21,7 +21,16 @@ import java.util.function.Function;
 
 public class ModuleEffects {
   static final List<Item> UNCAPPED = List.of(
-    Items.COPPER_PICKAXE //todo
+    Items.COPPER_PICKAXE,
+    Items.COPPER_SWORD,
+    Items.COPPER_SHOVEL,
+    Items.COPPER_HOE,
+    Items.COPPER_AXE,
+    
+    Items.COPPER_HELMET,
+    Items.COPPER_CHESTPLATE,
+    Items.COPPER_LEGGINGS,
+    Items.COPPER_BOOTS
   );
   
   static void addAttribute(ItemStack item, Identifier id, RegistryEntry<EntityAttribute> attr, double value, EntityAttributeModifier.Operation op, AttributeModifierSlot slot) {
@@ -41,7 +50,7 @@ public class ModuleEffects {
     item.set(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
     item.addEnchantment(getEnchant.apply(Enchantments.UNBREAKING), 3);
     item.addEnchantment(getEnchant.apply(Enchantments.MENDING), 1);
-    item.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
+    item.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, item.getItem().getComponents().get(DataComponentTypes.ATTRIBUTE_MODIFIERS));
     
     int efficiencyLv = moduleEffects[ModuleTypes.EFFICIENCY.id()];
     if(efficiencyLv > 0) {
@@ -66,6 +75,8 @@ public class ModuleEffects {
 
   public static int quickGetEffect(ItemStack item, ModuleTypes.ModuleType typ) {
     //todo faster impl?
-    return ToolManip.getModuleEffects(ToolManip.getModules(item), ModuleEffects.UNCAPPED.contains(item.getItem()))[typ.id()];
+    if(ToolManip.isModularized(item))
+      return ToolManip.getModuleEffects(ToolManip.getModules(item), !ModuleEffects.UNCAPPED.contains(item.getItem()))[typ.id()];
+    return 0;
   }
 }
