@@ -4,9 +4,12 @@
   "package": "dev.wateralt.mc.tfa_tools.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AnvilScreenHandlerMixin",
     "CommandManagerMixin",
+    "ForgingScreenHandlerAccessor",
     "GrindstoneScreenHandlerAnonymousMixin",
     "GrindstoneScreenHandlerMixin",
+    "LootableInventoryMixin",
     "MinecraftServerMixin"
   ],
   "client": [

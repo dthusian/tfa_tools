@@ -14,6 +14,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.stream.IntStreams;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,6 +24,7 @@ public class ToolManip {
   static final String MODULES_KEY = "tfa_tools.modules";
   static final String MODULE_EFFECT_KEY = "tfa_tools.effect";
   static final String FILLED_BOXES = "▁▂▃▅▆▇";
+  static final int MODULE_EMPTY = 0;
   
   static final int NETHERITE_TOOL_SLOTS = 8;
   static final int DIAMOND_TOOL_SLOTS = 7;
@@ -63,7 +65,7 @@ public class ToolManip {
     AtomicBoolean ret = new AtomicBoolean(false);
     if(canBeModularized(item)) {
       item.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbt -> nbt.apply(v -> {
-        if(v.getIntArray(MODULES_KEY).map(v2 -> Arrays.stream(v2).allMatch(v3 -> v3 == 0)).orElse(true)) {
+        if(v.getIntArray(MODULES_KEY).map(v2 -> Arrays.stream(v2).allMatch(v3 -> v3 == MODULE_EMPTY)).orElse(true)) {
           v.putIntArray(MODULES_KEY, new int[numSlots(item)]);
           ret.set(true);
         }
@@ -94,7 +96,7 @@ public class ToolManip {
       item.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbt -> nbt.apply(v -> {
         v.getIntArray(MODULES_KEY).ifPresent(v2 -> {
           for (int i = 0; i < v2.length; i++) {
-            if(v2[i] == 0) {
+            if(v2[i] == MODULE_EMPTY) {
               v2[i] = module;
               ret.set(true);
               break;
@@ -128,7 +130,8 @@ public class ToolManip {
   }
   
   public static ModuleTypes.ModuleType getModuleType(int module) {
-    return ModuleTypes.MODULE_TYPES.get(module >> 16);
+    if(module == MODULE_EMPTY) return null;
+    return ModuleTypes.MODULE_TYPES[module >> 16];
   }
 
   public static int getModuleStrength(int module) {
@@ -156,25 +159,31 @@ public class ToolManip {
   }
   
   public static int[] getModuleEffects(int[] modules, boolean capped) {
-    int[] caps = ModuleTypes.CAPS.stream().mapToInt(i->i).toArray();
-    return getModuleEffects(modules, capped, caps);
+    boolean[] gotCapped = new boolean[ModuleTypes.NUM_TYPES];
+    return getModuleEffects(modules, gotCapped, capped);
   }
 
-  public static int[] getModuleEffects(int[] modules, boolean capped, int[] caps) {
-    int[] total = new int[ModuleTypes.MAX_ID + 1];
-    addModuleEffects(total, caps, modules, capped);
+  public static int[] getModuleEffects(int[] modules, boolean[] gotCapped, boolean capped) {
+    int[] total = new int[ModuleTypes.NUM_TYPES];
+    int[] sharedCaps = ModuleTypes.CAPS.stream().mapToInt(i->i).toArray();
+    int[] selfCaps = IntStreams.rangeClosed(ModuleTypes.NUM_TYPES).map(v -> ModuleTypes.MODULE_TYPES[v].cap()).toArray();
+    addModuleEffects(total, modules, sharedCaps, selfCaps, capped);
+    for(int i = 0; i < ModuleTypes.NUM_TYPES; i++) {
+      gotCapped[i] = selfCaps[i] == 0 || sharedCaps[ModuleTypes.MODULE_TYPES[i].capId()] == 0;
+    }
     return total;
   }
   
-  public static void addModuleEffects(int[] total, int[] caps, int[] modules, boolean capped) {
+  public static void addModuleEffects(int[] total, int[] modules, int[] sharedCaps, int[] selfCaps, boolean capped) {
     Arrays.stream(modules).forEach(module -> {
       ModuleTypes.ModuleType typ = getModuleType(module);
       if(typ == null) return;
       int strength = getLegalModuleStrength(module);
       int cappedStrength;
       if(capped) {
-        cappedStrength = Math.min(strength, caps[typ.capId()]);
-        caps[typ.capId()] -= cappedStrength;
+        cappedStrength = Math.min(strength, Math.min(sharedCaps[typ.capId()], selfCaps[typ.id()]));
+        sharedCaps[typ.capId()] -= cappedStrength;
+        selfCaps[typ.id()] -= cappedStrength;
       } else {
         cappedStrength = strength;
       }
@@ -184,8 +193,8 @@ public class ToolManip {
   
   public static ArrayList<Text> getLore(ItemStack item) {
     int[] modules = getModules(item);
-    int[] caps = ModuleTypes.CAPS.stream().mapToInt(i->i).toArray();
-    int[] moduleEffects = getModuleEffects(modules, true, caps);
+    boolean[] gotCapped = new boolean[ModuleTypes.NUM_TYPES];
+    int[] moduleEffects = getModuleEffects(modules, gotCapped, true);
     
     ArrayList<Text> texts = new ArrayList<>();
     MutableText slots = Text.empty().styled(v -> v.withItalic(false));
@@ -205,10 +214,10 @@ public class ToolManip {
     texts.add(slots);
     
     for(int i = 0; i < moduleEffects.length; i++) {
-      ModuleTypes.ModuleType typ = ModuleTypes.MODULE_TYPES.get(i);
+      ModuleTypes.ModuleType typ = ModuleTypes.MODULE_TYPES[i];
       if(typ == null) continue;
       if(moduleEffects[i] == 0) continue;
-      String capText = caps[typ.capId()] == 0 ? "(cap)" : "";
+      String capText = gotCapped[i] ? "(cap)" : "";
       String text;
       if(typ.binary()) {
         text = typ.name();
@@ -226,12 +235,21 @@ public class ToolManip {
   }
   
   public static ItemStack createModuleItem(int module) {
+    return createModuleItem(Objects.requireNonNull(getModuleType(module)), getModuleStrength(module));
+  }
+  
+  public static ItemStack createModuleItem(ModuleTypes.ModuleType typ, int strength) {
     ItemStack stack = new ItemStack(Items.CLOCK, 1);
-    stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of("minecraft", "item/amethyst_shard"));
+    stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of("minecraft", "amethyst_shard"));
     stack.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
     NbtCompound nbt = new NbtCompound();
-    nbt.putInt(MODULE_EFFECT_KEY, module);
+    nbt.putInt(MODULE_EFFECT_KEY, moduleFromRawParts(typ.id(), strength));
     stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+    stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(
+      Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
+        .styled(v -> v.withItalic(false))
+        .formatted(typ.fmt())
+    )));
     return stack;
   }
   
