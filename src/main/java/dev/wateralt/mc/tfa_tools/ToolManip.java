@@ -141,7 +141,7 @@ public class ToolManip {
     return items;
   }
   
-  public static ModuleTypes.ModuleType getModuleType(int module) {
+  public static ModuleTypes.Type getModuleType(int module) {
     if(module == MODULE_EMPTY) return null;
     return ModuleTypes.MODULE_TYPES[module >> 16];
   }
@@ -155,7 +155,7 @@ public class ToolManip {
   }
 
   public static int getLegalModuleStrength(int module) {
-    ModuleTypes.ModuleType typ = getModuleType(module);
+    ModuleTypes.Type typ = getModuleType(module);
     return Math.clamp(getModuleStrength(module), typ.levelMin(), typ.levelMax());
   }
   
@@ -188,7 +188,7 @@ public class ToolManip {
   
   public static void addModuleEffects(int[] total, int[] modules, int[] sharedCaps, int[] selfCaps, boolean capped) {
     Arrays.stream(modules).forEach(module -> {
-      ModuleTypes.ModuleType typ = getModuleType(module);
+      ModuleTypes.Type typ = getModuleType(module);
       if(typ == null) return;
       int strength = getLegalModuleStrength(module);
       int cappedStrength;
@@ -212,7 +212,7 @@ public class ToolManip {
     MutableText slots = Text.empty().styled(v -> v.withItalic(false));
     int populated = 0;
     for(int i = 0; i < modules.length; i++) {
-      ModuleTypes.ModuleType typ = getModuleType(modules[i]);
+      ModuleTypes.Type typ = getModuleType(modules[i]);
       if(typ == null) {
         slots.append(Text.literal("-").formatted(Formatting.DARK_GRAY));
       } else {
@@ -226,7 +226,7 @@ public class ToolManip {
     texts.add(slots);
     
     for(int i = 0; i < moduleEffects.length; i++) {
-      ModuleTypes.ModuleType typ = ModuleTypes.MODULE_TYPES[i];
+      ModuleTypes.Type typ = ModuleTypes.MODULE_TYPES[i];
       if(typ == null) continue;
       if(moduleEffects[i] == 0) continue;
       String capText = gotCapped[i] ? "(cap)" : "";
@@ -250,7 +250,7 @@ public class ToolManip {
     return createModuleItem(Objects.requireNonNull(getModuleType(module)), getModuleStrength(module));
   }
   
-  public static ItemStack createModuleItem(ModuleTypes.ModuleType typ, int strength) {
+  public static ItemStack createModuleItem(ModuleTypes.Type typ, int strength) {
     ItemStack stack = new ItemStack(Items.CLOCK, 1);
     stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of("minecraft", "amethyst_shard"));
     stack.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);

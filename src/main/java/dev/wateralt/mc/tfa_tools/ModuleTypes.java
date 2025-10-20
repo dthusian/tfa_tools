@@ -1,31 +1,37 @@
 package dev.wateralt.mc.tfa_tools;
 
+import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
-import org.apache.http.cookie.SM;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class ModuleTypes {
-  public record ModuleType(int id, String name, int levelMin, int levelMax, int extraSlots, int capId, int cap, int toolClass, Formatting fmt) {
+  public record Type(int id, String name, int levelMin, int levelMax, int extraSlots, int capId, int cap, int toolClass, UnaryOperator<Style> fmt) {
     // builder pattern
-    static ModuleType defaults(int id, String name, Formatting fmt, int toolClass) {
-      return new ModuleType(id, name, 10, 10, 0, NO_CAP, Integer.MAX_VALUE, toolClass, fmt);
+    static Type defaults(int id, String name, Formatting fmt, int toolClass) {
+      return new Type(id, name, 10, 10, 0, NO_CAP, Integer.MAX_VALUE, toolClass, v -> v.withFormatting(fmt));
     }
-    ModuleType withLevelRange(int levelMin, int levelMax) {
-      return new ModuleType(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+    static Type defaults(int id, String name, UnaryOperator<Style> fmt, int toolClass) {
+      return new Type(id, name, 10, 10, 0, NO_CAP, Integer.MAX_VALUE, toolClass, fmt);
     }
-    
-    ModuleType withSharedCap(int capId) {
-      return new ModuleType(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
-    }
-    
-    ModuleType withSelfCap(int cap) {
-      return new ModuleType(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+    Type withLevelRange(int levelMin, int levelMax) {
+      return new Type(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
     }
     
-    ModuleType withExtraSlots(int extraSlots) {
-      return new ModuleType(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+    Type withSharedCap(int capId) {
+      return new Type(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+    }
+    
+    Type withSelfCap(int cap) {
+      return new Type(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+    }
+    
+    Type withExtraSlots(int extraSlots) {
+      return new Type(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
     }
     
     boolean binary() {
@@ -36,73 +42,73 @@ public class ModuleTypes {
   public static final int TOOLS = 1;
   public static final int ARMOR = 2;
   
-  public static final ModuleType EFFICIENCY =
-    ModuleType.defaults(0, "Efficiency", Formatting.GREEN, TOOLS)
+  public static final Type EFFICIENCY =
+    Type.defaults(0, "Efficiency", Formatting.GREEN, TOOLS)
       .withLevelRange(10, 15);
-  public static final ModuleType SILK_TOUCH = 
-    ModuleType.defaults(1, "Silk Touch", Formatting.YELLOW, TOOLS)
+  public static final Type SILK_TOUCH = 
+    Type.defaults(1, "Silk Touch", Formatting.YELLOW, TOOLS)
       .withExtraSlots(1);
-  public static final ModuleType FORTUNE = 
-    ModuleType.defaults(2, "Fortune", Formatting.AQUA, TOOLS)
+  public static final Type FORTUNE = 
+    Type.defaults(2, "Fortune", Formatting.AQUA, TOOLS)
       .withLevelRange(10, 15)
       .withSelfCap(30);
-  public static final ModuleType DURABILITY =
-    ModuleType.defaults(3, "Resilience", Formatting.GRAY, TOOLS);
-  public static final ModuleType SHARPNESS =
-    ModuleType.defaults(4, "Sharpness", Formatting.RED, TOOLS)
+  public static final Type DURABILITY =
+    Type.defaults(3, "Resilience", Formatting.GRAY, TOOLS);
+  public static final Type SHARPNESS =
+    Type.defaults(4, "Sharpness", Formatting.RED, TOOLS)
       .withSharedCap(1)
       .withLevelRange(10, 15);
-  public static final ModuleType FLINTSLATE =
-    ModuleType.defaults(5, "Flintslate", Formatting.GOLD, TOOLS)
+  public static final Type FLINTSLATE =
+    Type.defaults(5, "Flintslate", v -> v.withColor(0xff7700), TOOLS)
       .withSharedCap(1);
-  public static final ModuleType KNOCKBACK =
-    ModuleType.defaults(6, "Knockback", Formatting.LIGHT_PURPLE, TOOLS)
+  public static final Type KNOCKBACK =
+    Type.defaults(6, "Knockback", Formatting.LIGHT_PURPLE, TOOLS)
       .withSelfCap(20)
       .withLevelRange(10, 15);
   
-  public static final ModuleType BLUNT_PROT =
-    ModuleType.defaults(7, "Blunt Protection", Formatting.DARK_RED, ARMOR)
+  public static final Type BLUNT_PROT =
+    Type.defaults(7, "Blunt Protection", Formatting.DARK_RED, ARMOR)
       .withSelfCap(90)
       .withLevelRange(10, 15);
-  public static final ModuleType BLADE_PROT =
-    ModuleType.defaults(8, "Blade Protection", Formatting.RED, ARMOR)
+  public static final Type BLADE_PROT =
+    Type.defaults(8, "Blade Protection", Formatting.RED, ARMOR)
       .withSelfCap(90)
       .withLevelRange(10, 15);
-  public static final ModuleType FIRE_PROT =
-    ModuleType.defaults(9, "Fire Protection", Formatting.GOLD, ARMOR)
+  public static final Type FIRE_PROT =
+    Type.defaults(9, "Fire Protection", v -> v.withColor(0xff7700), ARMOR)
       .withSelfCap(90)
       .withLevelRange(10, 15);
-  public static final ModuleType BLAST_PROT =
-    ModuleType.defaults(10, "Blast Protection", Formatting.YELLOW, ARMOR)
+  public static final Type BLAST_PROT =
+    Type.defaults(10, "Blast Protection", v -> v.withColor(Colors.LIGHT_YELLOW), ARMOR)
       .withSelfCap(90)
       .withLevelRange(10, 15);
-  public static final ModuleType PROJ_PROT =
-    ModuleType.defaults(11, "Projectile Protection", Formatting.WHITE, ARMOR)
+  public static final Type PROJ_PROT =
+    Type.defaults(11, "Projectile Protection", Formatting.GRAY, ARMOR)
       .withSelfCap(90)
       .withLevelRange(10, 15);
-  public static final ModuleType MAGIC_PROT =
-    ModuleType.defaults(12, "Magic Protection", Formatting.LIGHT_PURPLE, ARMOR)
+  public static final Type MAGIC_PROT =
+    Type.defaults(12, "Magic Protection", Formatting.LIGHT_PURPLE, ARMOR)
       .withSelfCap(90)
       .withLevelRange(10, 15);
-  public static final ModuleType FEATHER_FALLING =
-    ModuleType.defaults(13, "Feather Falling", Formatting.GREEN, ARMOR)
+  public static final Type FEATHER_FALLING =
+    Type.defaults(13, "Feather Falling", v -> v.withColor(0xa2c6fc), ARMOR)
       .withSelfCap(60)
       .withLevelRange(10, 15);
-  public static final ModuleType AQUA_AFFINITY =
-    ModuleType.defaults(14, "Aqua Affinity", Formatting.BLUE, ARMOR);
-  public static final ModuleType SOUL_SPEED =
-    ModuleType.defaults(15, "Soul Speed", Formatting.DARK_PURPLE, ARMOR);
-  public static final ModuleType SWIFT_SNEAK =
-    ModuleType.defaults(16, "Swift Sneak", Formatting.DARK_BLUE, ARMOR);
-  public static final ModuleType FROST_WALKER =
-    ModuleType.defaults(17, "Frost Walker", Formatting.AQUA, ARMOR);
+  public static final Type AQUA_AFFINITY =
+    Type.defaults(14, "Aqua Affinity", Formatting.BLUE, ARMOR);
+  public static final Type SOUL_SPEED =
+    Type.defaults(15, "Soul Speed", Formatting.DARK_PURPLE, ARMOR);
+  public static final Type SWIFT_SNEAK =
+    Type.defaults(16, "Swift Sneak", Formatting.DARK_BLUE, ARMOR);
+  public static final Type FROST_WALKER =
+    Type.defaults(17, "Frost Walker", Formatting.AQUA, ARMOR);
 
   public static final List<Integer> CAPS = List.of(
     Integer.MAX_VALUE, // No cap
     50 // Sharpness
   );
   
-  public static final ModuleType[] MODULE_TYPES = new ModuleType[] {
+  public static final Type[] MODULE_TYPES = new Type[] {
     EFFICIENCY,
     SILK_TOUCH,
     FORTUNE,
@@ -131,7 +137,7 @@ public class ModuleTypes {
   
   public static final double BIAS_TOWARDS_RATE = 0.3;
   
-  public record GenerationInfo(List<ModuleType> biasTowards, double rate, double meanStrength) { }
+  public record GenerationInfo(List<Type> biasTowards, double rate, double meanStrength) { }
   
   public static final HashMap<String, GenerationInfo> MODULE_GENERATION = new HashMap<>();
   static {

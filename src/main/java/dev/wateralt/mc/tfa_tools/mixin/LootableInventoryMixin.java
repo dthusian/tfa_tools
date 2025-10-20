@@ -27,7 +27,7 @@ public interface LootableInventoryMixin {
       if(info != null) {
         Random rng = new Random(that.getLootTableSeed());
         boolean shouldGenerate = rng.nextDouble() < info.rate();
-        ModuleTypes.ModuleType typ = rng.nextDouble() < ModuleTypes.BIAS_TOWARDS_RATE && !info.biasTowards().isEmpty()
+        ModuleTypes.Type typ = rng.nextDouble() < ModuleTypes.BIAS_TOWARDS_RATE && !info.biasTowards().isEmpty()
           ? info.biasTowards().get(rng.nextInt(info.biasTowards().size()))
           : ModuleTypes.MODULE_TYPES[rng.nextInt(0, ModuleTypes.NUM_TYPES)];
         int strength = typ.levelMin();
