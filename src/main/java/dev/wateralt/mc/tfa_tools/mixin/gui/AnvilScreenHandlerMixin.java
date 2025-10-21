@@ -1,8 +1,13 @@
 package dev.wateralt.mc.tfa_tools.mixin.gui;
 
+import dev.wateralt.mc.tfa_tools.TfaTools;
 import dev.wateralt.mc.tfa_tools.ToolManip;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.AnvilScreenHandler;
 import net.minecraft.screen.Property;
 import org.spongepowered.asm.mixin.Final;
@@ -16,12 +21,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AnvilScreenHandlerMixin {
   @Shadow @Final private Property levelCost;
 
+  @Shadow private int repairItemUsage;
+
   @Inject(method = "updateResult", at = @At("HEAD"), cancellable = true)
   public void updateResult(CallbackInfo ci) {
     AnvilScreenHandler that = (AnvilScreenHandler) (Object) this;
     ForgingScreenHandlerAccessor thatAccess = (ForgingScreenHandlerAccessor) that; 
     ItemStack input1 = thatAccess.getInput().getStack(0);
     ItemStack input2 = thatAccess.getInput().getStack(1);
+    repairItemUsage = 0;
+    RegistryEntry<Enchantment> mending = TfaTools.dynamicRegistries.getEntryOrThrow(Enchantments.MENDING);
     
     if(ToolManip.isModularized(input1) && !input2.isEmpty()) {
       ci.cancel();
@@ -35,9 +44,10 @@ public class AnvilScreenHandlerMixin {
         } else {
           thatAccess.getOutput().setStack(0, output);
           levelCost.set(1);
+          repairItemUsage = 1;
         }
       }
-    } else if(ToolManip.canBeModularized(input1) && input2.isOf(Items.ECHO_SHARD)) {
+    } else if(ToolManip.canBeModularized(input1) && EnchantmentHelper.getLevel(mending, input1) > 0 && input2.isOf(Items.ECHO_SHARD)) {
       ci.cancel();
       ItemStack output = input1.copy();
       boolean success = ToolManip.modularizeItem(output);

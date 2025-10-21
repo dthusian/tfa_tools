@@ -60,10 +60,4 @@ unsolved mysteries
   - due to small number of slots, would be bad if using these enchants took away slots for prot
 - thorns?
   - likely will never see use due to taking up protection slots (make separate slots?)
-  
-todo
-- implement multi slot usage
-- implement uncapped
-- implement armor modules
-- implement module effects
-- fix bug: uses up all shards in the stack
+ 

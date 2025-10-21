@@ -12,6 +12,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.stream.IntStreams;
@@ -23,20 +24,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ToolManip {
   static final String MODULES_KEY = "tfa_tools.modules";
   static final String MODULE_EFFECT_KEY = "tfa_tools.effect";
-  static final String FILLED_BOXES = "▁▂▃▅▆▇";
+  static final String FILLED_BOXES = "▇▇▇▇▇▇"; // "▁▂▃▅▆▇"
   static final int MODULE_EMPTY = 0;
   
   static final int NETHERITE_TOOL_SLOTS = 8;
   static final int DIAMOND_TOOL_SLOTS = 7;
   static final int COPPER_TOOL_SLOTS = 3;
+  static final int GOLD_TOOL_SLOTS = 10;
+  static final int IRON_TOOL_SLOTS = 4;
 
-  static final int DIAMOND_ARMOR_SLOTS = 4;
   static final int NETHERITE_ARMOR_SLOTS = 4;
+  static final int DIAMOND_ARMOR_SLOTS = 4;
   static final int COPPER_ARMOR_SLOTS = 3;
+  static final int GOLD_ARMOR_SLOTS = 5;
+  static final int IRON_ARMOR_SLOTS = 3;
 
-  static final int DIAMOND_SWORD_SLOTS = 8; // todo
-  static final int NETHERITE_SWORD_SLOTS = 7; // todo
-  static final int COPPER_SWORD_SLOTS = 4; // todo
+  static final int NETHERITE_SWORD_SLOTS = 8;
+  static final int DIAMOND_SWORD_SLOTS = 7;
+  static final int COPPER_SWORD_SLOTS = 3;
+  static final int GOLD_SWORD_SLOTS = 10;
+  static final int IRON_SWORD_SLOTS = 4;
+  
   static final HashMap<Item, Integer> SLOTS = new HashMap<>();
   static {
     SLOTS.put(Items.DIAMOND_AXE, DIAMOND_TOOL_SLOTS);
@@ -103,13 +111,29 @@ public class ToolManip {
   public static boolean addModule(ItemStack item, int module) {
     AtomicBoolean ret = new AtomicBoolean(false);
     if(isModularized(item)) {
+      ModuleTypes.Type typ = getModuleType(module);
+      if(typ == null) return false;
       item.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbt -> nbt.apply(v -> {
         v.getIntArray(MODULES_KEY).ifPresent(v2 -> {
+          int freeSlots = 0;
+          int usedSlots = 0;
+          for (int i = 0; i < v2.length; i++) {
+            if(v2[i] == MODULE_EMPTY) freeSlots++;
+          }
+          if(freeSlots < typ.slotCost()) {
+            return;
+          } else {
+            ret.set(true);
+          }
           for (int i = 0; i < v2.length; i++) {
             if(v2[i] == MODULE_EMPTY) {
-              v2[i] = module;
-              ret.set(true);
-              break;
+              if(usedSlots == typ.slotCost() - 1) {
+                v2[i] = module;
+                return;
+              } else {
+                v2[i] = moduleFromRawParts(typ.id(), 0);
+                usedSlots++;
+              }
             }
           }
         });
@@ -134,7 +158,7 @@ public class ToolManip {
     int[] modules = getModules(item);
     ArrayList<ItemStack> items = new ArrayList<>();
     Arrays.stream(modules).forEach(v -> {
-      if(v != 0) {
+      if(getModuleStrength(v) != 0) {
         items.add(createModuleItem(v));
       }
     });
@@ -160,6 +184,7 @@ public class ToolManip {
   }
   
   public static int[] getModules(ItemStack item) {
+    if(!ToolManip.isModularized(item)) return new int[0];
     var ref = new Object() {
       int[] modules = new int[0];
     };
@@ -219,7 +244,7 @@ public class ToolManip {
         populated++;
         int strength = getLegalModuleStrength(modules[i]);
         int boxIdx = typ.binary() ? 5 : Math.clamp(strength - typ.levelMin(), 0, 5);
-        slots.append(Text.literal(FILLED_BOXES.substring(boxIdx, boxIdx + 1)).formatted(typ.fmt()));
+        slots.append(Text.literal(FILLED_BOXES.substring(boxIdx, boxIdx + 1)).styled(typ.fmt()));
       }
     }
     slots.append(Text.literal(String.format(" %d/%d", populated, numSlots(item))).formatted(Formatting.DARK_GRAY));
@@ -236,7 +261,7 @@ public class ToolManip {
       } else {
         text = String.format("%d.%d %s %s", moduleEffects[i] / 10, moduleEffects[i] % 10, typ.name(), capText);
       }
-      texts.add(Text.literal(text).styled(v -> v.withItalic(false)).formatted(typ.fmt()));
+      texts.add(Text.literal(text).styled(v -> v.withItalic(false)).styled(typ.fmt()));
     }
     
     return texts;
@@ -260,10 +285,13 @@ public class ToolManip {
     stack.set(DataComponentTypes.ITEM_NAME, Text.literal("Enchanted Shard").formatted(Formatting.LIGHT_PURPLE));
     stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(
       typ.binary()
-       ? Text.literal(typ.name()).styled(v -> v.withItalic(false)).formatted() 
-       : Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
+        ? Text.literal(typ.name()).styled(v -> v.withItalic(false)).styled(typ.fmt()) 
+        : Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
           .styled(v -> v.withItalic(false))
-          .formatted(typ.fmt())
+          .styled(typ.fmt()),
+      typ.slotCost() > 1
+        ? Text.literal("(%d slots)").styled(v -> v.withItalic(false).withColor(Colors.DARK_GRAY))
+        : Text.literal("")
     )));
     return stack;
   }

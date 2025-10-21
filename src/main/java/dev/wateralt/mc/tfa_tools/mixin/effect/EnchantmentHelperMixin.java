@@ -1,6 +1,5 @@
 package dev.wateralt.mc.tfa_tools.mixin.effect;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import dev.wateralt.mc.tfa_tools.ModuleEffects;
 import dev.wateralt.mc.tfa_tools.ModuleTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -13,24 +12,29 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.registry.tag.TagEntry;
 import net.minecraft.server.world.ServerWorld;
-import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Mixin(EnchantmentHelper.class)
 public abstract class EnchantmentHelperMixin {
-
   @Inject(method = "getDamage", at = @At("RETURN"), cancellable = true)
+  private static void getItemDamage(ServerWorld world, ItemStack stack, Entity target, DamageSource damageSource, float baseDamage, CallbackInfoReturnable<Integer> cir) {
+    float duraLv = ModuleEffects.quickGetEffectFloat(stack, ModuleTypes.SHARPNESS);
+    if(duraLv > 0) {
+      if(Math.random() < duraLv * 0.2) {
+        cir.setReturnValue(0);
+      }
+    }
+  }
+  
+  @Inject(method = "getDamage", at = @At("HEAD"), cancellable = true)
   private static void getDamage(ServerWorld world, ItemStack stack, Entity target, DamageSource damageSource, float baseDamage, CallbackInfoReturnable<Float> cir) {
     float dmg = baseDamage;
     float sharpLv = ModuleEffects.quickGetEffectFloat(stack, ModuleTypes.SHARPNESS);
@@ -107,16 +111,5 @@ public abstract class EnchantmentHelperMixin {
     if(protType != null) {
       cir.setReturnValue(effects[protType.id()] * 2.0f);
     }
-  }
-  
-  @Inject(method = "getEquipmentDropChance", at = @At("TAIL"))
-  private static void getEquipmentDropChance(ServerWorld world, LivingEntity attacker, DamageSource damageSource, float baseEquipmentDropChance, CallbackInfoReturnable<Float> cir, @Local MutableFloat mutableFloat) {
-    ArrayList<ItemStack> items = new ArrayList<>();
-    items.add(attacker.getWeaponStack());
-    if(damageSource.getAttacker() instanceof LivingEntity source)
-      items.add(source.getWeaponStack());
-    items.forEach(v -> {
-      mutableFloat.add(ModuleEffects.quickGetEffectFloat(v, ModuleTypes.FORTUNE) * 0.01);
-    });
   }
 }

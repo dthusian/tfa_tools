@@ -87,13 +87,11 @@ public class ModuleEffects {
     if(moduleEffects[ModuleTypes.SILK_TOUCH.id()] > 0) {
       item.addEnchantment(getEnchant.apply(Enchantments.SILK_TOUCH), 1);
     }
-    
-    // todo fortune
-    
-    // todo durability
-    
-    // sharpness, flintslate, kb, prots implemented via mixin
-    
+    int fortuneLv = moduleEffects[ModuleTypes.FORTUNE.id()] / 10;
+    if(fortuneLv > 0) {
+      item.addEnchantment(getEnchant.apply(Enchantments.FORTUNE), fortuneLv);
+      item.addEnchantment(getEnchant.apply(Enchantments.LOOTING), fortuneLv);
+    }
     if(moduleEffects[ModuleTypes.AQUA_AFFINITY.id()] > 0 && item.isIn(ItemTags.HEAD_ARMOR)) {
       item.addEnchantment(getEnchant.apply(Enchantments.AQUA_AFFINITY), 1);
       item.addEnchantment(getEnchant.apply(Enchantments.RESPIRATION), 3);
@@ -111,6 +109,8 @@ public class ModuleEffects {
       moduleEffects[ModuleTypes.AQUA_AFFINITY.id()] == 0 && item.isIn(ItemTags.FOOT_ARMOR)) {
       item.addEnchantment(getEnchant.apply(Enchantments.FROST_WALKER), 2);
     }
+    
+    // durability, sharpness, flintslate, kb, prots implemented via mixin
   }
 
   public static int quickGetEffect(ItemStack item, ModuleTypes.Type typ) {

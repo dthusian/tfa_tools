@@ -1,7 +1,6 @@
 package dev.wateralt.mc.tfa_tools;
 
 import net.minecraft.text.Style;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 
@@ -10,24 +9,24 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 public class ModuleTypes {
-  public record Type(int id, String name, int levelMin, int levelMax, int extraSlots, int capId, int cap, int toolClass, UnaryOperator<Style> fmt) {
+  public record Type(int id, String name, int levelMin, int levelMax, int slotCost, int capId, int cap, int toolClass, UnaryOperator<Style> fmt) {
     // builder pattern
     static Type defaults(int id, String name, Formatting fmt, int toolClass) {
-      return new Type(id, name, 10, 10, 0, NO_CAP, Integer.MAX_VALUE, toolClass, v -> v.withFormatting(fmt));
+      return new Type(id, name, 10, 10, 1, NO_CAP, Integer.MAX_VALUE, toolClass, v -> v.withFormatting(fmt));
     }
     static Type defaults(int id, String name, UnaryOperator<Style> fmt, int toolClass) {
-      return new Type(id, name, 10, 10, 0, NO_CAP, Integer.MAX_VALUE, toolClass, fmt);
+      return new Type(id, name, 10, 10, 1, NO_CAP, Integer.MAX_VALUE, toolClass, fmt);
     }
     Type withLevelRange(int levelMin, int levelMax) {
-      return new Type(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+      return new Type(id, name, levelMin, levelMax, slotCost, capId, cap, toolClass, fmt);
     }
     
     Type withSharedCap(int capId) {
-      return new Type(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+      return new Type(id, name, levelMin, levelMax, slotCost, capId, cap, toolClass, fmt);
     }
     
     Type withSelfCap(int cap) {
-      return new Type(id, name, levelMin, levelMax, extraSlots, capId, cap, toolClass, fmt);
+      return new Type(id, name, levelMin, levelMax, slotCost, capId, cap, toolClass, fmt);
     }
     
     Type withExtraSlots(int extraSlots) {
@@ -47,7 +46,7 @@ public class ModuleTypes {
       .withLevelRange(10, 15);
   public static final Type SILK_TOUCH = 
     Type.defaults(1, "Silk Touch", Formatting.YELLOW, TOOLS)
-      .withExtraSlots(1);
+      .withExtraSlots(2);
   public static final Type FORTUNE = 
     Type.defaults(2, "Fortune", Formatting.AQUA, TOOLS)
       .withLevelRange(10, 15)
