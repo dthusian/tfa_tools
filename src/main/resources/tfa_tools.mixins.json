@@ -5,14 +5,17 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CommandManagerMixin",
-    "LootableInventoryMixin",
+    "DamageDebugMixin",
+    "DamageSourceMixin",
     "MinecraftServerMixin",
     "effect.EnchantmentHelperMixin",
     "effect.ItemMixin",
     "gui.AnvilScreenHandlerMixin",
     "gui.ForgingScreenHandlerAccessor",
     "gui.GrindstoneScreenHandlerAnonymousMixin",
-    "gui.GrindstoneScreenHandlerMixin"
+    "gui.GrindstoneScreenHandlerMixin",
+    "worldgen.LootableInventoryMixin",
+    "worldgen.VaultBlockEntityMixin"
   ],
   "client": [
   ],

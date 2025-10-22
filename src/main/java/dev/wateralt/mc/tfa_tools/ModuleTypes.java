@@ -4,6 +4,7 @@ import net.minecraft.text.Style;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.UnaryOperator;
@@ -136,20 +137,56 @@ public class ModuleTypes {
   
   public static final double BIAS_TOWARDS_RATE = 0.3;
   
-  public record GenerationInfo(List<Type> biasTowards, double rate, double meanStrength) { }
+  public record GenerationInfo(List<Type> biasTowards, List<Type> generatable, double rate, double meanStrength) { }
+  
+  public static final List<Type> OVERWORLD_DEFAULT = List.of(
+    EFFICIENCY,
+    FORTUNE,
+    SILK_TOUCH,
+    DURABILITY,
+    SHARPNESS,
+    KNOCKBACK,
+
+    BLUNT_PROT,
+    PROJ_PROT,
+    MAGIC_PROT,
+    FEATHER_FALLING,
+    
+    AQUA_AFFINITY,
+    FROST_WALKER
+  );
   
   public static final HashMap<String, GenerationInfo> MODULE_GENERATION = new HashMap<>();
   static {
-    // Tier 1 structures
-    MODULE_GENERATION.put("minecraft:chests/abandoned_minecraft", new GenerationInfo(List.of(EFFICIENCY), 1.0, 0.25));
-    MODULE_GENERATION.put("minecraft:chests/simple_dungeon", new GenerationInfo(List.of(FORTUNE, SILK_TOUCH), 1.0, 0.25));
+    List<Type> allTypes = Arrays.stream(MODULE_TYPES).toList();
+    
+    // Tier 1A structures
+    MODULE_GENERATION.put("minecraft:chests/abandoned_minecraft", new GenerationInfo(List.of(EFFICIENCY), OVERWORLD_DEFAULT, 0.8, 0.25));
+    MODULE_GENERATION.put("minecraft:chests/simple_dungeon", new GenerationInfo(List.of(FORTUNE, SILK_TOUCH), OVERWORLD_DEFAULT, 1.0, 0.25));
+    MODULE_GENERATION.put("minecraft:chests/stronghold_library", new GenerationInfo(List.of(MAGIC_PROT), OVERWORLD_DEFAULT, 1.0, 0.25));
+    MODULE_GENERATION.put("minecraft:chests/trial_chambers/reward", new GenerationInfo(List.of(PROJ_PROT), OVERWORLD_DEFAULT, 0.5, 0.25));
+    MODULE_GENERATION.put("minecraft:chests/shipwreck_treasure", new GenerationInfo(List.of(AQUA_AFFINITY), OVERWORLD_DEFAULT, 0.8, 0.25));
+    MODULE_GENERATION.put("minecraft:chests/underwater_ruin_big", new GenerationInfo(List.of(AQUA_AFFINITY), OVERWORLD_DEFAULT, 0.3, 0.25));
+    MODULE_GENERATION.put("minecraft:chests/underwater_ruin_small", new GenerationInfo(List.of(AQUA_AFFINITY), OVERWORLD_DEFAULT, 0.3, 0.25));
+
+    // Tier 1B structures
+    MODULE_GENERATION.put("minecraft:chests/desert_pyramid", new GenerationInfo(List.of(FEATHER_FALLING), OVERWORLD_DEFAULT, 1.0, 0.3));
+    MODULE_GENERATION.put("minecraft:chests/jungle_temple", new GenerationInfo(List.of(KNOCKBACK), OVERWORLD_DEFAULT, 1.0, 0.3));
+    MODULE_GENERATION.put("minecraft:chests/woodland_mansion", new GenerationInfo(List.of(SHARPNESS), OVERWORLD_DEFAULT, 0.5, 0.3));
+    MODULE_GENERATION.put("minecraft:chests/ruined_portal", new GenerationInfo(List.of(), allTypes, 0.05, 0.3));
     
     // Tier 2 structures
-    //MODULE_GENERATION.put("minecraft:chests/nether_bridge", new GenerationInfo(List.of(FLINTSLATE), 1.0, 0.4));
-    //MODULE_GENERATION.put("minecraft:chests/nether_bridge", new GenerationInfo(List.of(FLINTSLATE), 1.0, 0.4));
-
+    MODULE_GENERATION.put("minecraft:chests/nether_bridge", new GenerationInfo(List.of(FIRE_PROT), allTypes, 0.7, 0.4));
+    MODULE_GENERATION.put("minecraft:chests/bastion_bridge", new GenerationInfo(List.of(FLINTSLATE), allTypes, 0.5, 0.4));
+    MODULE_GENERATION.put("minecraft:chests/bastion_treasure", new GenerationInfo(List.of(FLINTSLATE), allTypes, 1.0, 0.4));
+    MODULE_GENERATION.put("minecraft:chests/bastion_other", new GenerationInfo(List.of(FIRE_PROT), allTypes, 0.5, 0.4));
+    MODULE_GENERATION.put("minecraft:chests/trial_chambers/reward_ominous", new GenerationInfo(List.of(SHARPNESS), OVERWORLD_DEFAULT, 0.5, 0.4));
+    MODULE_GENERATION.put("minecraft:chests/ancient_city", new GenerationInfo(List.of(SWIFT_SNEAK), OVERWORLD_DEFAULT, 0.7, 0.4));
+    
     // Tier 3 structures
-    //MODULE_GENERATION.put("minecraft:chests/ancient_city", new GenerationInfo(List.of(SWIFT_SNEAK), 1.0, 0.5));
-    //MODULE_GENERATION.put("minecraft:chests/end_city_treasure", new GenerationInfo(List.of(), 0.8, 0.5));
+    MODULE_GENERATION.put("minecraft:chests/end_city_treasure", new GenerationInfo(List.of(), allTypes, 0.8, 0.5));
+    
+    // Special cases
+    MODULE_GENERATION.put("minecraft:chests/ancient_city_ice_box", new GenerationInfo(List.of(FROST_WALKER), List.of(FROST_WALKER), 1.0, 0.25));
   }
 }

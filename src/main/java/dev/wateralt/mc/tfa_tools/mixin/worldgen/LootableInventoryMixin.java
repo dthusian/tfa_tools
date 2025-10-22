@@ -1,6 +1,7 @@
-package dev.wateralt.mc.tfa_tools.mixin;
+package dev.wateralt.mc.tfa_tools.mixin.worldgen;
 
 import dev.wateralt.mc.tfa_tools.ModuleTypes;
+import dev.wateralt.mc.tfa_tools.ShardWorldgen;
 import dev.wateralt.mc.tfa_tools.ToolManip;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.LootableInventory;
@@ -20,24 +21,12 @@ public interface LootableInventoryMixin {
     LootableInventory that = (LootableInventory) this;
     if(that.getWorld() != null && that.getWorld().isClient()) return;
     if(that.getLootTable() != null) {
+      long seed = that.getLootTableSeed();
+      Random rng = new Random(seed);
       RegistryKey<LootTable> savedLootTable = that.getLootTable();
       that.setLootTable(null);
       String lootTableId = savedLootTable.getValue().toString();
-      ModuleTypes.GenerationInfo info = ModuleTypes.MODULE_GENERATION.get(lootTableId);
-      if(info != null) {
-        Random rng = new Random(that.getLootTableSeed());
-        boolean shouldGenerate = rng.nextDouble() < info.rate();
-        ModuleTypes.Type typ = rng.nextDouble() < ModuleTypes.BIAS_TOWARDS_RATE && !info.biasTowards().isEmpty()
-          ? info.biasTowards().get(rng.nextInt(info.biasTowards().size()))
-          : ModuleTypes.MODULE_TYPES[rng.nextInt(0, ModuleTypes.NUM_TYPES)];
-        int strength = typ.levelMin();
-        for(int i = 0; i < typ.levelMax() - typ.levelMin(); i++) {
-          strength += rng.nextDouble() < info.meanStrength() ? 1 : 0;
-        }
-        if(shouldGenerate) {
-          that.setStack(rng.nextInt(0, that.size()), ToolManip.createModuleItem(ToolManip.moduleFromRawParts(typ.id(), strength)));
-        }
-      }
+      ShardWorldgen.generateShard(lootTableId, seed).ifPresent(v -> that.setStack(rng.nextInt(0, that.size()), v));
       that.setLootTable(savedLootTable);
     }
   }

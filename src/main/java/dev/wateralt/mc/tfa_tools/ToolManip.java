@@ -27,65 +27,12 @@ public class ToolManip {
   static final String FILLED_BOXES = "▇▇▇▇▇▇"; // "▁▂▃▅▆▇"
   static final int MODULE_EMPTY = 0;
   
-  static final int NETHERITE_TOOL_SLOTS = 8;
-  static final int DIAMOND_TOOL_SLOTS = 7;
-  static final int COPPER_TOOL_SLOTS = 3;
-  static final int GOLD_TOOL_SLOTS = 10;
-  static final int IRON_TOOL_SLOTS = 4;
-
-  static final int NETHERITE_ARMOR_SLOTS = 4;
-  static final int DIAMOND_ARMOR_SLOTS = 4;
-  static final int COPPER_ARMOR_SLOTS = 3;
-  static final int GOLD_ARMOR_SLOTS = 5;
-  static final int IRON_ARMOR_SLOTS = 3;
-
-  static final int NETHERITE_SWORD_SLOTS = 8;
-  static final int DIAMOND_SWORD_SLOTS = 7;
-  static final int COPPER_SWORD_SLOTS = 3;
-  static final int GOLD_SWORD_SLOTS = 10;
-  static final int IRON_SWORD_SLOTS = 4;
-  
-  static final HashMap<Item, Integer> SLOTS = new HashMap<>();
-  static {
-    SLOTS.put(Items.DIAMOND_AXE, DIAMOND_TOOL_SLOTS);
-    SLOTS.put(Items.DIAMOND_PICKAXE, DIAMOND_TOOL_SLOTS);
-    SLOTS.put(Items.DIAMOND_SWORD, DIAMOND_SWORD_SLOTS);
-    SLOTS.put(Items.DIAMOND_HELMET, DIAMOND_ARMOR_SLOTS);
-    SLOTS.put(Items.DIAMOND_CHESTPLATE, DIAMOND_ARMOR_SLOTS);
-    SLOTS.put(Items.DIAMOND_LEGGINGS, DIAMOND_ARMOR_SLOTS);
-    SLOTS.put(Items.DIAMOND_BOOTS, DIAMOND_ARMOR_SLOTS);
-    
-    SLOTS.put(Items.NETHERITE_AXE, NETHERITE_TOOL_SLOTS);
-    SLOTS.put(Items.NETHERITE_PICKAXE, NETHERITE_TOOL_SLOTS);
-    SLOTS.put(Items.NETHERITE_SWORD, NETHERITE_SWORD_SLOTS);
-    SLOTS.put(Items.NETHERITE_HELMET, NETHERITE_ARMOR_SLOTS);
-    SLOTS.put(Items.NETHERITE_CHESTPLATE, NETHERITE_ARMOR_SLOTS);
-    SLOTS.put(Items.NETHERITE_LEGGINGS, NETHERITE_ARMOR_SLOTS);
-    SLOTS.put(Items.NETHERITE_BOOTS, NETHERITE_ARMOR_SLOTS);
-    
-    SLOTS.put(Items.COPPER_AXE, COPPER_TOOL_SLOTS);
-    SLOTS.put(Items.COPPER_PICKAXE, COPPER_TOOL_SLOTS);
-    SLOTS.put(Items.COPPER_SWORD, COPPER_SWORD_SLOTS);
-    SLOTS.put(Items.COPPER_HELMET, COPPER_ARMOR_SLOTS);
-    SLOTS.put(Items.COPPER_CHESTPLATE, COPPER_ARMOR_SLOTS);
-    SLOTS.put(Items.COPPER_LEGGINGS, COPPER_ARMOR_SLOTS);
-    SLOTS.put(Items.COPPER_BOOTS, COPPER_ARMOR_SLOTS);
-  }
-  
-  public static int numSlots(Item item) {
-    return SLOTS.get(item);
-  }
-  
-  public static int numSlots(ItemStack item) {
-    return numSlots(item.getItem());
-  }
-  
   public static boolean modularizeItem(ItemStack item) {
     AtomicBoolean ret = new AtomicBoolean(false);
     if(canBeModularized(item)) {
       item.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbt -> nbt.apply(v -> {
         if(v.getIntArray(MODULES_KEY).map(v2 -> Arrays.stream(v2).allMatch(v3 -> v3 == MODULE_EMPTY)).orElse(true)) {
-          v.putIntArray(MODULES_KEY, new int[numSlots(item)]);
+          v.putIntArray(MODULES_KEY, new int[ToolMaterials.numSlots(item)]);
           ret.set(true);
         }
       }));
@@ -105,7 +52,7 @@ public class ToolManip {
   }
   
   public static boolean canBeModularized(ItemStack item) {
-    return SLOTS.containsKey(item.getItem());
+    return ToolMaterials.SLOTS.containsKey(item.getItem());
   }
   
   public static boolean addModule(ItemStack item, int module) {
@@ -147,7 +94,7 @@ public class ToolManip {
   public static void clearModules(ItemStack item) {
     if(isModularized(item)) {
       item.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbt -> nbt.apply(v -> {
-        v.putIntArray(MODULES_KEY, new int[numSlots(item)]);
+        v.putIntArray(MODULES_KEY, new int[ToolMaterials.numSlots(item)]);
       }));
       updateLore(item);
       ModuleEffects.updateModuleEffects(item);
@@ -247,7 +194,7 @@ public class ToolManip {
         slots.append(Text.literal(FILLED_BOXES.substring(boxIdx, boxIdx + 1)).styled(typ.fmt()));
       }
     }
-    slots.append(Text.literal(String.format(" %d/%d", populated, numSlots(item))).formatted(Formatting.DARK_GRAY));
+    slots.append(Text.literal(String.format(" %d/%d", populated, ToolMaterials.numSlots(item))).formatted(Formatting.DARK_GRAY));
     texts.add(slots);
     
     for(int i = 0; i < moduleEffects.length; i++) {
