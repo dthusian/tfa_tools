@@ -43,7 +43,7 @@ Caps on armor will apply to all
 | 0  | Efficiency      | No     | 1          |              |                            |
 | 1  | Silk Touch      | Yes    | 2          |              |                            |
 | 2  | Fortune         | No     | 1          | 3.0          |                            |
-| 3  | Durability      | No     | 1          |              |                            |
+| 3  | Resilience      | No     | 1          |              |                            |
 | 4  | Sharpness       | No     | 1          | 5.0          | Cap shared with flintslate |
 | 5  | Flintslate      | Yes    | 1          | 5.0          | Cap shared with sharpness  |
 | 6  | Knockback       | No     | 1          | 2.0          |                            |

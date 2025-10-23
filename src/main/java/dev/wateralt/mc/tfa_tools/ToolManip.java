@@ -230,16 +230,14 @@ public class ToolManip {
     nbt.putInt(MODULE_EFFECT_KEY, moduleFromRawParts(typ.id(), strength));
     stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
     stack.set(DataComponentTypes.ITEM_NAME, Text.literal("Enchanted Shard").formatted(Formatting.LIGHT_PURPLE));
-    stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(
-      typ.binary()
-        ? Text.literal(typ.name()).styled(v -> v.withItalic(false)).styled(typ.fmt()) 
-        : Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
-          .styled(v -> v.withItalic(false))
-          .styled(typ.fmt()),
-      typ.slotCost() > 1
-        ? Text.literal("(%d slots)").styled(v -> v.withItalic(false).withColor(Colors.DARK_GRAY))
-        : Text.literal("")
-    )));
+    Text lore = typ.binary()
+      ? Text.literal(typ.name()).styled(v -> v.withItalic(false)).styled(typ.fmt())
+      : Text.literal("+%d.%d %s".formatted(strength / 10, strength % 10, typ.name()))
+      .styled(v -> v.withItalic(false))
+      .styled(typ.fmt());
+    if(typ.slotCost() > 1)
+      lore.getSiblings().add(Text.literal(" (%d slots)".formatted(typ.slotCost())).styled(v -> v.withItalic(false).withColor(Colors.DARK_GRAY)));
+    stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(lore)));
     return stack;
   }
   

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-@Mixin(targets = "net.minecraft.block.entity.VaultBlockEntity.Server")
+@Mixin(net.minecraft.block.entity.VaultBlockEntity.Server.class)
 public class VaultBlockEntityMixin {
   @Inject(method = "generateLoot", at = @At("RETURN"))
   private static void generateLoot(ServerWorld world, VaultConfig config, BlockPos pos, PlayerEntity player, ItemStack key, CallbackInfoReturnable<List<ItemStack>> cir) {

@@ -19,7 +19,7 @@ public class ItemMixin {
   public void getDamageSource(LivingEntity user, CallbackInfoReturnable<DamageSource> cir) {
     ItemStack stack = user.getWeaponStack();
     if(ModuleEffects.quickGetEffect(stack, ModuleTypes.FLINTSLATE) > 0) {
-      cir.setReturnValue(new DamageSource(user.getDamageSources().onFire().getTypeRegistryEntry(), user));
+      cir.setReturnValue(new DamageSource(user.getDamageSources().inFire().getTypeRegistryEntry(), user));
     }
   }
 }

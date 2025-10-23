@@ -1,7 +1,10 @@
 package dev.wateralt.mc.tfa_tools.mixin.gui;
 
+import dev.wateralt.mc.tfa_tools.ModuleTypes;
 import dev.wateralt.mc.tfa_tools.TfaTools;
 import dev.wateralt.mc.tfa_tools.ToolManip;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -17,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.Function;
+
 @Mixin(AnvilScreenHandler.class)
 public class AnvilScreenHandlerMixin {
   @Shadow @Final private Property levelCost;
@@ -31,6 +36,14 @@ public class AnvilScreenHandlerMixin {
     ItemStack input2 = thatAccess.getInput().getStack(1);
     repairItemUsage = 0;
     RegistryEntry<Enchantment> mending = TfaTools.dynamicRegistries.getEntryOrThrow(Enchantments.MENDING);
+    RegistryEntry<Enchantment> soulSpeed = TfaTools.dynamicRegistries.getEntryOrThrow(Enchantments.SOUL_SPEED);
+    Function<ItemStack, Boolean> checkSoulSpeed = (stack) -> {
+      ItemEnchantmentsComponent comp = stack.get(DataComponentTypes.STORED_ENCHANTMENTS);
+      if(comp != null) {
+        return comp.getEnchantments().contains(soulSpeed);
+      }
+      return false;
+    };
     
     if(ToolManip.isModularized(input1) && !input2.isEmpty()) {
       ci.cancel();
@@ -58,6 +71,11 @@ public class AnvilScreenHandlerMixin {
         thatAccess.getOutput().setStack(0, output);
         levelCost.set(30);
       }
+    } else if(input1.isOf(Items.AMETHYST_SHARD) && checkSoulSpeed.apply(input2)) {
+      ci.cancel();
+      ItemStack output = ToolManip.createModuleItem(ModuleTypes.SOUL_SPEED, 15);
+      thatAccess.getOutput().setStack(0, output);
+      levelCost.set(5);
     }
   }
 }
