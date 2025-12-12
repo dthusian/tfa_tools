@@ -47,6 +47,7 @@ public class ToolManip {
   }
   
   public static boolean isModularized(ItemStack item) {
+    if(item == null) return false;
     NbtComponent comp = item.get(DataComponentTypes.CUSTOM_DATA);
     return comp != null && comp.copyNbt().contains(MODULES_KEY);
   }
