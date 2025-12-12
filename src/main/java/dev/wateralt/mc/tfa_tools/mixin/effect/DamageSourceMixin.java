@@ -1,4 +1,4 @@
-package dev.wateralt.mc.tfa_tools.mixin;
+package dev.wateralt.mc.tfa_tools.mixin.effect;
 
 import dev.wateralt.mc.tfa_tools.ModuleEffects;
 import dev.wateralt.mc.tfa_tools.ModuleTypes;

@@ -6,9 +6,9 @@
   "mixins": [
     "CommandManagerMixin",
     "DamageDebugMixin",
-    "DamageSourceMixin",
-    "DamageUtilMixin",
     "MinecraftServerMixin",
+    "effect.DamageUtilMixin",
+    "effect.DamageSourceMixin",
     "effect.EnchantmentHelperMixin",
     "effect.ItemMixin",
     "gui.AnvilScreenHandlerMixin",
