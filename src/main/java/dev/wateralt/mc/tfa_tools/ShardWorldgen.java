@@ -37,7 +37,7 @@ public class ShardWorldgen {
     AQUA_AFFINITY
   );
   public static final List<ModuleTypes.Type> ALL_CHEST_LOOT = Arrays.stream(MODULE_TYPES)
-    .filter(REMOVE_FROM_CHEST_LOOT::contains)
+    .filter(v -> !REMOVE_FROM_CHEST_LOOT.contains(v))
     .toList();
 
   public static final HashMap<String, GenerationInfo> MODULE_GENERATION = new HashMap<>();

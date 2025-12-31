@@ -26,7 +26,7 @@ import java.util.Objects;
 public abstract class EnchantmentHelperMixin {
   @Inject(method = "getDamage", at = @At("RETURN"), cancellable = true)
   private static void getItemDamage(ServerWorld world, ItemStack stack, Entity target, DamageSource damageSource, float baseDamage, CallbackInfoReturnable<Integer> cir) {
-    float duraLv = ModuleEffects.quickGetEffectFloat(stack, ModuleTypes.SHARPNESS);
+    float duraLv = ModuleEffects.quickGetEffectFloat(stack, ModuleTypes.DURABILITY);
     if(duraLv > 0) {
       if(Math.random() < duraLv * 0.2) {
         cir.setReturnValue(0);
